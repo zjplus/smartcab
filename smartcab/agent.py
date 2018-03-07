@@ -23,6 +23,8 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set any additional class parameters as needed
+        self.t = 1
+        self.a = 0.995
 
 
     def reset(self, destination=None, testing=False):
@@ -43,8 +45,13 @@ class LearningAgent(Agent):
         if testing:
             self.epsilon = self.alpha = 0.0
         else:
-            ep = self.epsilon - 0.05
-            self.epsilon = 0.0 if ep < 0.01 else ep
+            # liner
+            # self.epsilon  = self.epsilon - 0.05
+            # 
+            # self.epsilon  = 1/(self.t**2)
+            # self.epsilon = math.cos(a*self.t)
+            self.epsilon = self.a**self.t
+            self.t += 1
 
 
         return None
@@ -140,7 +147,7 @@ class LearningAgent(Agent):
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
 
         if self.learning:
-            self.Q[state][action] += self.alpha * (reward - self.Q[state][action])
+            self.Q[state][action] = (1 - self.alpha) * self.Q[state][action] + self.alpha * reward
 
         return
 
@@ -192,14 +199,14 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True)
+    sim = Simulator(env, update_delay=0.01, log_metrics=True,optimized=True,display=False)
     
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10)
+    sim.run(n_test=30, tolerance=0.01)
 
 
 if __name__ == '__main__':
